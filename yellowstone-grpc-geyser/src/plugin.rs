@@ -68,11 +68,7 @@ impl GeyserPlugin for Plugin {
 
         // Create inner
         let runtime = Builder::new_multi_thread()
-            .thread_name_fn(|| {
-                static ATOMIC_ID: AtomicUsize = AtomicUsize::new(0);
-                let id = ATOMIC_ID.fetch_add(1, Ordering::Relaxed);
-                format!("solGeyserGrpc{id:02}")
-            })
+            .thread_name_fn(crate::get_thread_name)
             .enable_all()
             .build()
             .map_err(|error| GeyserPluginError::Custom(Box::new(error)))?;
