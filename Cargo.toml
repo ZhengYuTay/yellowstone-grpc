@@ -59,6 +59,7 @@ solana-account-decoder = {path= "../jito-solana/account-decoder"}
 solana-logger = "~2.3.1"
 solana-sdk = "~2.2.2"
 solana-storage-proto = {path= "../jito-solana/storage-proto"}
+solana-transaction-context = { path = "../jito-solana/transaction-context" }
 solana-transaction-status = {path= "../jito-solana/transaction-status"}
 smallvec = "1.13.2"
 spl-token-2022 = "8.0.0"
