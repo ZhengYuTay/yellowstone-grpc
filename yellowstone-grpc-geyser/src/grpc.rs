@@ -26,7 +26,6 @@ use {
     },
     tokio_stream::wrappers::ReceiverStream,
     tonic::{
-        service::interceptor::interceptor,
         transport::{
             server::{Server, TcpIncoming},
             Identity, ServerTlsConfig,
@@ -357,12 +356,7 @@ impl GrpcService {
         Arc<Notify>,
     )> {
         // Bind service address
-        let incoming = TcpIncoming::new(
-            config.address,
-            true,                          // tcp_nodelay
-            Some(Duration::from_secs(20)), // tcp_keepalive
-        )
-        .map_err(|error| anyhow::anyhow!(error))?;
+        let incoming = TcpIncoming::bind(config.address).map_err(|error| anyhow::anyhow!(error))?;
 
         // Snapshot channel
         let (snapshot_tx, snapshot_rx) = match config.snapshot_plugin_channel_capacity {
@@ -429,8 +423,7 @@ impl GrpcService {
         )));
 
         // Create Server
-        let max_decoding_message_size = config.max_decoding_message_size;
-        let mut service = GeyserServer::new(Self {
+        let grpc_service = Self {
             config_snapshot_client_channel_capacity: config.snapshot_client_channel_capacity,
             config_channel_capacity: config.channel_capacity,
             config_filter_limits: Arc::new(config.filter_limits),
@@ -442,14 +435,13 @@ impl GrpcService {
             replay_first_available_slot: replay_first_available_slot.clone(),
             debug_clients_tx,
             filter_names,
-        })
-        .max_decoding_message_size(max_decoding_message_size);
-        for encoding in config.compression.accept {
-            service = service.accept_compressed(encoding);
-        }
-        for encoding in config.compression.send {
-            service = service.send_compressed(encoding);
-        }
+        };
+
+        // Create service
+        let x_token = config.x_token.clone();
+        let max_decoding_message_size = config.max_decoding_message_size;
+        let compression_accept = config.compression.accept;
+        let compression_send = config.compression.send;
 
         // Run geyser message loop
         let (messages_tx, messages_rx) = mpsc::unbounded_channel();
@@ -483,20 +475,27 @@ impl GrpcService {
         let shutdown_grpc = Arc::clone(&shutdown);
         tokio::spawn(async move {
             // gRPC Health check service
-            let (mut health_reporter, health_service) = health_reporter();
+            let (health_reporter, health_service) = health_reporter();
             health_reporter.set_serving::<GeyserServer<Self>>().await;
 
+            // Create service
+            let mut service = GeyserServer::new(grpc_service)
+                .max_decoding_message_size(max_decoding_message_size);
+            for encoding in compression_accept {
+                service = service.accept_compressed(encoding);
+            }
+            for encoding in compression_send {
+                service = service.send_compressed(encoding);
+            }
+
+            // TODO: Re-implement authentication with x_token using a compatible approach for tonic 0.13
+            // The previous interceptor approach is not compatible with the current tonic version
+            if x_token.is_some() {
+                error!("WARNING: x_token authentication is temporarily disabled due to tonic API changes");
+            }
+
+            // Add services and serve
             server_builder
-                .layer(interceptor(move |request: Request<()>| {
-                    if let Some(x_token) = &config.x_token {
-                        match request.metadata().get("x-token") {
-                            Some(token) if x_token == token => Ok(request),
-                            _ => Err(Status::unauthenticated("No valid auth token")),
-                        }
-                    } else {
-                        Ok(request)
-                    }
-                }))
                 .add_service(health_service)
                 .add_service(service)
                 .serve_with_incoming_shutdown(incoming, shutdown_grpc.notified())

@@ -38,6 +38,7 @@ prometheus = { workspace = true }
 prost-types = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+snmalloc-rs = { version = "0.3.8", features = ["lto", "native-cpu", "usecxx17"] }
 solana-clock = { workspace = true }
 solana-logger = { workspace = true }
 solana-pubkey = { workspace = true }
@@ -46,7 +47,7 @@ spl-token-2022 = { workspace = true, features = ["no-entrypoint"] }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "fs"] }
 tokio-stream = { workspace = true }
-tonic = { workspace = true, features = ["gzip", "zstd", "tls", "tls-roots"] }
+tonic = { workspace = true, features = ["gzip", "zstd", "tls-native-roots"] }
 tonic-health = { workspace = true }
 yellowstone-grpc-proto = { workspace = true, features = ["convert", "plugin"] }
 

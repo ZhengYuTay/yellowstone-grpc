@@ -49,9 +49,8 @@ local-ip-address = "0.6.1"
 log = "0.4.17"
 maplit = "1.0.2"
 prometheus = "0.13.2"
-prost = "0.13.1"
-prost-types = "0.13.3"
-prost_011 = { package = "prost", version = "0.11.9" }
+prost = "0.13"
+prost-types = "0.13"
 protobuf-src = "1.1.0"
 serde = "1.0.145"
 serde_json = "1.0.86"
@@ -75,9 +74,9 @@ spl-token-2022 = "8.0.0"
 thiserror = "1.0.63"
 tokio = "1.21.2"
 tokio-stream = "0.1.11"
-tonic = "0.12.1"
-tonic-build = "0.12.1"
-tonic-health = "0.12.1"
+tonic = "0.13"
+tonic-build = "0.13"
+tonic-health = "0.13"
 vergen = "9.0.0"
 yellowstone-grpc-client = { path = "yellowstone-grpc-client", version = "7.0.0" }
 yellowstone-grpc-proto = { path = "yellowstone-grpc-proto", version = "7.0.0", default-features = false }
@@ -90,6 +89,7 @@ trivially_copy_pass_by_ref = "deny"
 [profile.release]
 lto = true
 codegen-units = 1
+panic = "abort"
 
 [patch.crates-io]
 solana-zk-sdk = { path = "../jito-solana/zk-sdk" }
