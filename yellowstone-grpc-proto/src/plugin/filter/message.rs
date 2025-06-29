@@ -423,7 +423,7 @@ impl FilteredUpdateOneof {
         Self::Entry(FilteredUpdateEntry(message))
     }
 
-    pub fn type_name(&self) -> &'static str {
+    pub const fn type_name(&self) -> &'static str {
         match self {
             FilteredUpdateOneof::Account(_) => "account",
             FilteredUpdateOneof::Slot(_) => "slot",

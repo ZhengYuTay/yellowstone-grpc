@@ -445,7 +445,7 @@ impl FilterAccountsState {
         Ok(this)
     }
 
-    fn is_empty(&self) -> bool {
+    const fn is_empty(&self) -> bool {
         self.memcmp.is_empty()
             && self.datasize.is_none()
             && !self.token_account_state
@@ -836,9 +836,7 @@ impl FilterEntries {
         FilterLimits::check_max(configs.len(), limits.max)?;
 
         Ok(Self {
-            filters: configs
-                .iter()
-                .map(|(name, _filter)| names.get(name))
+            filters: configs.keys().map(|name| names.get(name))
                 .collect::<Result<_, _>>()?,
         })
     }
@@ -998,9 +996,7 @@ impl FilterBlocksMeta {
         FilterLimits::check_max(configs.len(), limits.max)?;
 
         Ok(Self {
-            filters: configs
-                .iter()
-                .map(|(name, _filter)| names.get(name))
+            filters: configs.keys().map(|name| names.get(name))
                 .collect::<Result<_, _>>()?,
         })
     }
@@ -1159,7 +1155,7 @@ mod tests {
             ..SolMessage::default()
         };
         let recent_blockhash = Hash::default();
-        let sanitized_transaction = SanitizedTransaction::from_transaction_for_tests(
+        let carsanitized_transaction = SanitizedTransaction::from_transaction_for_tests(
             Transaction::new(&[keypair], message, recent_blockhash),
         );
         let meta = convert_to::create_transaction_meta(&TransactionStatusMeta {
