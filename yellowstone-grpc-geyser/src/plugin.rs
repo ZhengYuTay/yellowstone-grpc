@@ -6,8 +6,8 @@ use {
     },
     agave_geyser_plugin_interface::geyser_plugin_interface::{
         GeyserPlugin, GeyserPluginError, ReplicaAccountInfoVersions, ReplicaBlockInfoVersions,
-        ReplicaEntryInfoVersions, ReplicaTransactionInfoVersions, Result as PluginResult,
-        SlotStatus,
+        ReplicaEntryInfoVersions, ReplicaTransactionInfoV3, ReplicaTransactionInfoVersions,
+        Result as PluginResult, SlotStatus,
     },
     std::{
         concat, env,
@@ -205,9 +205,14 @@ impl GeyserPlugin for Plugin {
                 ReplicaTransactionInfoVersions::V0_0_1(_info) => {
                     unreachable!("ReplicaAccountInfoVersions::V0_0_1 is not supported")
                 }
-                ReplicaTransactionInfoVersions::V0_0_2(_info) => {
-                    unreachable!("ReplicaTransactionInfoVersions::V0_0_2 is not supported")
-                }
+                ReplicaTransactionInfoVersions::V0_0_2(info) => &ReplicaTransactionInfoV3 {
+                    index: info.index,
+                    is_vote: info.is_vote,
+                    message_hash: info.transaction.message_hash(),
+                    signature: info.signature,
+                    transaction: &info.transaction.to_versioned_transaction(),
+                    transaction_status_meta: info.transaction_status_meta,
+                },
                 ReplicaTransactionInfoVersions::V0_0_3(info) => info,
             };
 
