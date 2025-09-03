@@ -35,7 +35,6 @@ use {
     prost::encoding::{encode_key, encode_varint, WireType},
     solana_pubkey::{ParsePubkeyError, Pubkey},
     solana_signature::{ParseSignatureError, Signature},
-    spl_token_2022::{generic_token_account::GenericTokenAccount, state::Account as TokenAccount},
     std::{
         collections::{HashMap, HashSet},
         ops::Range,
@@ -447,9 +446,6 @@ impl FilterAccountsState {
 
     fn is_match(&self, data: &[u8], lamports: u64) -> bool {
         if matches!(self.datasize, Some(datasize) if data.len() != datasize) {
-            return false;
-        }
-        if self.token_account_state && !TokenAccount::valid_account_data(data) {
             return false;
         }
         if self.lamports.iter().any(|f| !f.is_match(lamports)) {
