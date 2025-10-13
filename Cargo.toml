@@ -21,7 +21,7 @@ publish = false
 
 [workspace.dependencies]
 affinity = "^0.1.2"
-agave-geyser-plugin-interface = "^3.0.0"
+agave-geyser-plugin-interface = {path= "../jito-solana/geyser-plugin-interface"}
 anyhow = "^1.0.0"
 backoff = "^0.4.0"
 base64 = "^0.22.1"
@@ -56,7 +56,7 @@ protobuf-src = "^1.1.0"
 serde = "^1.0.145"
 serde_json = "^1.0.86"
 solana-account = "^3.0.0"
-solana-account-decoder = "^3.0.0"
+solana-account-decoder = {path= "../jito-solana/account-decoder"}
 solana-clock = "^3.0.0"
 solana-hash = "^3.0.0"
 solana-keypair = "^3.0.0"
@@ -65,11 +65,11 @@ solana-message = { version = "^3.0.0", features = ["bincode", "blake3"] }
 solana-pubkey = "^3.0.0"
 solana-signature = "^3.0.0"
 solana-signer = "^3.0.0"
-solana-storage-proto = "^3.0.0"
+solana-storage-proto = {path= "../jito-solana/storage-proto"}
 solana-transaction = "^3.0.0"
-solana-transaction-context = "^3.0.0"
+solana-transaction-context = { path = "../jito-solana/transaction-context" }
 solana-transaction-error = "^3.0.0"
-solana-transaction-status = "^3.0.0"
+solana-transaction-status = {path= "../jito-solana/transaction-status"}
 smallvec = "^1.0.0"
 spl-token-2022 = "^8.0.0"
 thiserror = "^1.0.0"
@@ -93,3 +93,7 @@ trivially_copy_pass_by_ref = "deny"
 [profile.release]
 lto = true
 codegen-units = 1
+
+
+[patch.crates-io]
+solana-transaction-context = { path = "../jito-solana/transaction-context" }
